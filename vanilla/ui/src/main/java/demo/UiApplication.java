@@ -29,7 +29,11 @@ import org.springframework.web.util.WebUtils;
 @SpringBootApplication
 @RestController
 public class UiApplication {
-	
+
+	// This is a useful trick in a Spring Security application. If the "/user" resource is reachable then it will return
+	// the currently authenticated user (an Authentication), and otherwise Spring Security will intercept the request
+	// and send a 401 response through an AuthenticationEntryPoint.
+
 	@RequestMapping("/user")
 	public Principal user(Principal user) {
 		return user;
