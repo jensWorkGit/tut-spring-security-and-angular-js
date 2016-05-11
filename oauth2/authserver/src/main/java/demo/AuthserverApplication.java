@@ -20,6 +20,8 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.token.TokenStore;
+import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
 import org.springframework.stereotype.Controller;
@@ -35,87 +37,80 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @EnableResourceServer
 public class AuthserverApplication extends WebMvcConfigurerAdapter {
 
-	@RequestMapping("/user")
-	@ResponseBody
-	public Principal user(Principal user) {
-		return user;
-	}
+    @RequestMapping("/user")
+    @ResponseBody
+    public Principal user(Principal user) {
+        return user;
+    }
 
-	@Override
-	public void addViewControllers(ViewControllerRegistry registry) {
-		registry.addViewController("/login").setViewName("login");
-		registry.addViewController("/oauth/confirm_access").setViewName("authorize");
-	}
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+        registry.addViewController("/login").setViewName("login");
+        registry.addViewController("/oauth/confirm_access").setViewName("authorize");
+    }
 
-	public static void main(String[] args) {
-		SpringApplication.run(AuthserverApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(AuthserverApplication.class, args);
+    }
 
-	@Configuration
-	@Order(-20)
-	protected static class LoginConfig extends WebSecurityConfigurerAdapter {
+    @Configuration
+    @Order(-20)
+    protected static class LoginConfig extends WebSecurityConfigurerAdapter {
 
-		@Autowired
-		private AuthenticationManager authenticationManager;
+        @Autowired
+        private AuthenticationManager authenticationManager;
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.formLogin().loginPage("/login").permitAll()
-			.and()
-				.requestMatchers().antMatchers("/login", "/oauth/authorize", "/oauth/confirm_access")
-			.and()
-				.authorizeRequests().anyRequest().authenticated();
-			// @formatter:on
-		}
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            // @formatter:off
+            http.formLogin().loginPage("/login").permitAll().and().requestMatchers()
+                .antMatchers("/login", "/oauth/authorize", "/oauth/confirm_access").and().authorizeRequests()
+                .anyRequest().authenticated();
+            // @formatter:on
+        }
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			auth.parentAuthenticationManager(authenticationManager);
-		}
-	}
+        @Override
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+            auth.parentAuthenticationManager(authenticationManager);
+        }
+    }
 
-	@Configuration
-	@EnableAuthorizationServer
-	protected static class OAuth2AuthorizationConfig extends
-			AuthorizationServerConfigurerAdapter {
+    @Configuration
+    @EnableAuthorizationServer
+    protected static class OAuth2AuthorizationConfig extends AuthorizationServerConfigurerAdapter {
 
-		@Autowired
-		private AuthenticationManager authenticationManager;
+        @Bean
+        public TokenStore tokenStore() {
+            return new JdbcTokenStore(dataSource);
+        }
 
-		@Bean
-		public JwtAccessTokenConverter jwtAccessTokenConverter() {
-			JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-			KeyPair keyPair = new KeyStoreKeyFactory(
-					new ClassPathResource("keystore.jks"), "foobar".toCharArray())
-					.getKeyPair("test");
-			converter.setKeyPair(keyPair);
-			return converter;
-		}
+        @Autowired
+        private AuthenticationManager authenticationManager;
 
-		@Override
-		public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-			clients.inMemory()
-					.withClient("acme")
-					.secret("acmesecret")
-					.authorizedGrantTypes("authorization_code", "refresh_token",
-							"password").scopes("openid");
-		}
+        @Bean
+        public JwtAccessTokenConverter jwtAccessTokenConverter() {
+            JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
+            KeyPair keyPair = new KeyStoreKeyFactory(new ClassPathResource("keystore.jks"), "foobar".toCharArray())
+                    .getKeyPair("test");
+            converter.setKeyPair(keyPair);
+            return converter;
+        }
 
-		@Override
-		public void configure(AuthorizationServerEndpointsConfigurer endpoints)
-				throws Exception {
-			endpoints.authenticationManager(authenticationManager).accessTokenConverter(
-					jwtAccessTokenConverter());
-		}
+        @Override
+        public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
+            clients.inMemory().withClient("acme").secret("acmesecret")
+                   .authorizedGrantTypes("authorization_code", "refresh_token", "password").scopes("openid");
+        }
 
-		@Override
-		public void configure(AuthorizationServerSecurityConfigurer oauthServer)
-				throws Exception {
-			oauthServer.tokenKeyAccess("permitAll()").checkTokenAccess(
-					"isAuthenticated()");
-		}
+        @Override
+        public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
+            endpoints.authenticationManager(authenticationManager).accessTokenConverter(jwtAccessTokenConverter());
+        }
 
-	}
+        @Override
+        public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
+            oauthServer.tokenKeyAccess("permitAll()").checkTokenAccess("isAuthenticated()");
+        }
+
+    }
 }
