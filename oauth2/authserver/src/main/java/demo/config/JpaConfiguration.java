@@ -1,4 +1,4 @@
-package demo;
+package demo.config;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +16,7 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
-@EnableJpaRepositories(basePackages={"demo"})
+@EnableJpaRepositories(basePackages={"demo.repository"})
 public class JpaConfiguration {
 
 }
