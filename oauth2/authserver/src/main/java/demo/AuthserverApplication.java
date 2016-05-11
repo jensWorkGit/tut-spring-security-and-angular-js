@@ -102,6 +102,9 @@ public class AuthserverApplication extends WebMvcConfigurerAdapter {
 
         @Override
         public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
+//            clients.jdbc(dataSource).withClient("acme").secret("acmesecret")
+//                   .authorizedGrantTypes("authorization_code", "refresh_token", "password").scopes("openid");
+
             clients.jdbc(dataSource).withClient("acme").secret("acmesecret")
                    .authorizedGrantTypes("authorization_code", "refresh_token", "password").scopes("openid");
         }

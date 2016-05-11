@@ -9,7 +9,7 @@ create table oauth_client_details (
   access_token_validity INTEGER,
   refresh_token_validity INTEGER,
   additional_information VARCHAR(4096),
-  autoapprove tinyint
+  autoapprove VARCHAR(255)
 );
 
 create table oauth_client_token (

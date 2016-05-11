@@ -1,6 +1,6 @@
 INSERT INTO USER (username,email, password, activated) VALUES ('admin', 'admin@mail.me', 'b8f57d6d6ec0a60dfe2e20182d4615b12e321cad9e2979e0b9f81e0d6eda78ad9b6dcfe53e4e22d1', true);
-INSERT INTO USER (username,email, password, activated) VALUES ('user', 'user@mail.me', 'd6dfa9ff45e03b161e7f680f35d90d5ef51d243c2a8285aa7e11247bc2c92acde0c2bb626b1fac74', true);
-INSERT INTO USER (username,email, password, activated) VALUES ('rajith', 'jens@abc.com', 'd6dfa9ff45e03b161e7f680f35d90d5ef51d243c2a8285aa7e11247bc2c92acde0c2bb626b1fac74', true);
+INSERT INTO USER (username,email, password, activated) VALUES ('user', 'user@mail.me', 'c865d3da3b6e1669a1725070c3eb37417ac00acd849d23f80aa0b89746d547364f4fda238f245511', true);
+INSERT INTO USER (username,email, password, activated) VALUES ('jens', 'jens@abc.com', 'c865d3da3b6e1669a1725070c3eb37417ac00acd849d23f80aa0b89746d547364f4fda238f245511', true);
 
 INSERT INTO AUTHORITY (name) VALUES ('ROLE_USER');
 INSERT INTO AUTHORITY (name) VALUES ('ROLE_ADMIN');
